@@ -7,6 +7,7 @@ async function listContacts() {
   try {
     const data = await fs.readFile(contactsPath, "utf8");
     const result = JSON.parse(data);
+
     console.table(result);
   } catch (error) {
     console.error(error);
@@ -34,7 +35,10 @@ async function removeContact(contactId) {
     const withoutRemoveContact = contacts.filter(
       (contact) => contact.id !== Number(contactId)
     );
+
     await fs.writeFile(contactsPath, JSON.stringify(withoutRemoveContact));
+
+    console.log("Removed contact");
     console.table(withoutRemoveContact);
   } catch (error) {
     console.error(error);
@@ -42,15 +46,19 @@ async function removeContact(contactId) {
 }
 
 async function addContact(name, email, phone) {
+  const contactNew = { id: Date.now(), name, email, phone };
   try {
     const data = await fs.readFile(contactsPath, { encoding: "utf8" });
-    const contactNew = { id: Date.now(), name, email, phone };
     const contacts = JSON.parse(data);
-    const contactsList = JSON.stringify([contactNew, ...contacts], null, "\t");
-    fs.writeFile(contactsPath, contactsList, (err) => {
-      if (err) console.error(err);
-    });
-    console.table(contacts);
+    const contactsListNew = [contactNew, ...contacts];
+
+    await fs.writeFile(
+      contactsPath,
+      JSON.stringify(contactsListNew, null, "\t")
+    );
+
+    console.log("Added new contact");
+    console.table(contactsListNew);
   } catch (error) {
     console.error(error);
   }
